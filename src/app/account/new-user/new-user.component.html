@@ -1,0 +1,39 @@
+<p>Or create new user here: </p><br>
+<mat-card>
+  <form (submit)="onCreate(createForm)" #createForm="ngForm" method="POST">
+    <div class="createUserContainer">
+      <mat-form-field hintLabel="Username">
+        <input matInput
+        name="username"
+        type="text" 
+        maxlength="10"
+        placeholder="Username"
+        #username="ngModel"
+        ngModel required/>
+        <mat-error *ngIf="username.invalid">Please enter username.</mat-error>
+      </mat-form-field>
+      <mat-form-field hintLabel="Max 10 characters">
+        <input matInput
+        name="password"
+        type="password" 
+        maxlength="10"
+        placeholder="password"
+        #password="ngModel"
+        ngModel required/>
+        <mat-error *ngIf="password.invalid">Please enter password.</mat-error>
+        
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput 
+        name = "email" 
+        #email="ngModel" 
+        placeholder="Enter your email" 
+        type="email" 
+        ngModel required/>
+        <mat-error *ngIf="email.invalid">Must be valid format email address.</mat-error>
+      </mat-form-field>
+      &nbsp;&nbsp;<button mat-raised-button color="primary" type="submit">Create</button>
+      
+    </div>
+  </form>
+</mat-card>

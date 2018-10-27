@@ -1,0 +1,18 @@
+<!--The content below is only a placeholder and can be replaced.-->
+<mat-toolbar color="primary"> 
+  <mat-toolbar-row>
+          <span class="title-center">
+      Application App
+  </span>
+    </mat-toolbar-row>
+    
+
+    <mat-toolbar-row>
+      <button mat-button [routerLink]="['/home']" color="Warn">Home</button>
+      <button mat-button [routerLink]="['/application']">Application</button>
+
+</mat-toolbar-row>
+
+</mat-toolbar>
+
+<router-outlet></router-outlet>
