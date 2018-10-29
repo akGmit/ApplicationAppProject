@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { tap, delay } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { User } from '../models/user';
 
@@ -18,13 +17,10 @@ export class AuthService {
     this.isLoggedIn = true;
   }
 
+  //Sending login infomation and returning response
   login(user:User): Observable<any>{
-    /*const usr : User = {username : username, password: password
-      , firstName: "ASDF", lastName: "ASDF"};*/
+    //Post login details to server and return response
     return this.http.post("http://localhost:8081/login", user);
-  }
 
-  logout(): void {
-    
   }
 }

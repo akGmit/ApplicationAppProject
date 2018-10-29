@@ -1,7 +1,27 @@
 <p>Or create new user here: </p><br>
 <mat-card>
-  <form (submit)="onCreate(createForm)" #createForm="ngForm" method="POST">
+  <form (ngSubmit)="onCreate(createForm)" #createForm="ngForm">
     <div class="createUserContainer">
+      <mat-form-field hintLabel="First Name">
+        <input matInput
+        name="fname"
+        type="text" 
+        maxlength="15"
+        placeholder="First name"
+        #fname="ngModel"
+        ngModel required/>
+        <mat-error *ngIf="fname.invalid">Please enter first name.</mat-error>
+      </mat-form-field>
+      <mat-form-field hintLabel="Last Name">
+        <input matInput
+        name="lname"
+        type="text" 
+        maxlength="15"
+        placeholder="Laast name"
+        #lname="ngModel"
+        ngModel required/>
+        <mat-error *ngIf="lname.invalid">Please enter last name.</mat-error>
+      </mat-form-field>
       <mat-form-field hintLabel="Username">
         <input matInput
         name="username"
@@ -23,16 +43,9 @@
         <mat-error *ngIf="password.invalid">Please enter password.</mat-error>
         
       </mat-form-field>
-      <mat-form-field>
-        <input matInput 
-        name = "email" 
-        #email="ngModel" 
-        placeholder="Enter your email" 
-        type="email" 
-        ngModel required/>
-        <mat-error *ngIf="email.invalid">Must be valid format email address.</mat-error>
-      </mat-form-field>
-      &nbsp;&nbsp;<button mat-raised-button color="primary" type="submit">Create</button>
+      
+      <br>
+      <button mat-raised-button color="primary" type="submit">Create</button>
       
     </div>
   </form>

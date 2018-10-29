@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
+import { CanActivate, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { AuthService } from './auth.service';
 
@@ -10,26 +10,20 @@ export class AuthGuard implements CanActivate {
   
   constructor(private authService: AuthService, private router: Router) {}
 
-
+  //Guard Method to block unauthorized users
+  //If return true, user can access page else will be redirected to login page
   canActivate(): boolean {
     return this.checkLogin();
   }
 
+  //Method to check if user is logged in, redirect user to login page if not
   checkLogin(): boolean {
     
-    //this.authService.login
-    console.log(this.authService.isLoggedIn);
-    
     if (this.authService.isLoggedIn) { 
-      console.log("authGuard");
-      //this.router.navigate(['/home']);
       return true; 
     }
 
-    // Store the attempted URL for redirecting
-    
-
-    // Navigate to the login page with extras
+    //If not logged in redirecting to login page using Router
     this.router.navigate(['/login']);
     return false;
   }
