@@ -3,20 +3,17 @@ var app = express();
 var path = require('path');
 var bodyParser = require('body-parser');
 
-
 //Mongo db connection
 var mongoose = require('mongoose');
 var mongooseUserDb = require('mongoose');
+var mongooseUserAppDB = require('mongoose');
 
 //User application db
 mongoose.connect('mongodb://lab5:a123456@ds137863.mlab.com:37863/lab5');
 //User login DB
 mongooseUserDb.connect('mongodb://lab5:a123456@ds137863.mlab.com:37863/lab5');
-
-
-
-
-
+//User application DB
+mongooseUserAppDB.connect('mongodb://lab5:a123456@ds137863.mlab.com:37863/lab5');
 
 //Mongoose post scheme
 var Schema = mongoose.Schema;
@@ -30,12 +27,31 @@ var UserSchema = new Schema({
     username: String,
     password: String,
     firstname: String,
-    lastname: String
+    lastname: String,
+    id: String
 });
 
-// Compile model from schema
+//User application schema
+var UserAppSchema = new Schema({
+    id: String,
+    firstname: String,
+    lastname: String,
+    tel: String,
+    email: String,
+    address: [
+        {street: String,
+        city: String,
+        county: String,
+        zip: String}
+    ],
+    experience: String,
+    bio: String
+})
+
+// Compile models from schema
 var PostModel = mongoose.model('PostModel', PostSchema );
 var UserModel = mongooseUserDb.model("Users", UserSchema);
+var UserAppModel = mongooseUserAppDB.model("Applications", UserAppSchema);
 
 //Here we are configuring express to use body-parser as middle-ware. 
 app.use(bodyParser.urlencoded({ extended: false })); 
@@ -48,81 +64,96 @@ app.use(function(req, res, next) {
     next();
     });
 
-//Login     
+//--------------LOGIN---------------------
+//Login request, if username and password valid, respond with user
 app.post('/login', function(req, res){
-    //Local variables for username and password
-    let usr = req.body.username;
-    let pass = req.body.password;
+    //Query for checking if username and password exist in user database
+    var query = UserModel.findOne({username: req.body.username, password: req.body.password});
     
-    //Mongoose query to find user with specified login details 
-    var query = UserModel.find({username: usr, password: pass}, 'username password');
-    
-    //Execute query
-    //Check query result  
+    //Execute query with calback function
     query.exec(function(err, user){
-        if(err){
-            console.log(err);
-            res.status(200).send({"result": "false"});
+        //If reuturn object not null, username and password valid, send user object as response
+        if(user != null){
+            res.status(200).send(user);
+            console.log(user.firstname);
+        //If object returned from query is null, data is incorrect, send null response
+        }else if(user === null){
+            res.send(null);
         }
-        //If query returns [] - send response as no user like that or wrong login details
-        else if(!user.length){
-            console.log("boom");
-            res.status(200).send({"result": "wrongDetails"});
-        }
-        //If query returns valid details, send response stating login successful
-        else if(user[0].username == usr && user[0].password == pass){
-            res.status(200).send({"result": "true"});
-            console.log("true");
+    });
+});
+//--------------EDN LOGIN---------------------
+
+////--------------NEW USER---------------------
+//New username, with middleware functions to check if username is available
+app.post('/newuser', function(req, res, next){
+    
+    //Query to find username
+    var usernameTakenQuery = UserModel.findOne({username : req.body.username});
+    
+    //Execute query 
+    usernameTakenQuery.exec(function(err, user){
+        
+        //If username doesnt exist, go to next middleware function
+        if(user === null){
+            next();
+        //If username is taken, send response
         }else{
-            res.status(200).send({"result": "false"});
-            console.log("false");
+            console.log("username taken");
+            res.send({"usernameTaken" : true});
         }
     })
-    
-});
+})
 
+//Function to create new user if username is available
 app.post('/newuser', function(req, res){
 
-    let usernameTaken = false;
-
-    var checkIfUsernameExists = UserModel.findOne({username: req.body.username});
-    //console.log(checkIfUsernameExists);
-    checkIfUsernameExists.exec(function(err, user){
-        if(user != null){
-            console.log(user);
-            console.log("usernamae taken");
-            res.send({"usernameTaken":"true"});
-            usernameTaken = true;
-        }
-    })
-    console.log("username" + usernameTaken);
-    //Query to create new user
-    var query = UserModel.create({
-        username: req.body.username,
-        password: req.body.password,
-        firstname: req.body.firstName,
-        lastname: req.body.lastName
-    });
-    //Execute query
-    if(usernameTaken == false){
-        query.then(function(user){
-            console.log(user);
-        });
-    }
+    //New user model 
+    var newUsr = new UserModel({username: req.body.username, password: req.body.password,
+        firstname: req.body.firstName, lastname: req.body.lastName});
     
-})
+    //New user promise
+    var newUserPromise = UserModel.create(newUsr);
+    
+    //Execute new user promise with call back function
+    newUserPromise.then(function(newUser){      
+        //Send new user as response
+        res.send(newUser);
+    })
+});
+////--------------END NEW USER---------------------
 
-app.get('/api/posts', function(req, res){
 
-    PostModel.find({}, 'title content', function(err, posts){
-        if(err){
-          console.log(err);
-        } else{
-            res.status(200).json({posts:posts});
-            console.log('retrieved posts', posts.length, posts[4].id);
-        }
-    })  
-})
+//--------------APPLICATION---------------------
+
+//Function to create user's application in database
+app.post('/application', function(req, res){
+    console.log(req);
+    
+    //UserApplication model
+    var application = new UserAppModel({id: req.body.id, firstname: req.body.firstname, lastname: req.body.lastname,
+    tel: req.body.tel, email: req.body.email, address: req.body.address, experience: req.body.experience,
+       bio: req.body.bio});
+    
+    //UserApplication promise
+    var applicationCreate = UserAppModel.create(application);
+    
+    //Execeute userapplication promise
+    applicationCreate.then(function(app){
+        console.log(app);
+        res.send(app);
+    })
+});
+
+//Funtion to deal with get request to return user's application data
+app.get('/application', function(req, res){
+    console.log(req.body.firstname);
+    var userID = UserAppModel.findOne({id : req.body.id});
+    
+    userID.exec(function(err, app){
+        res.send(app);
+    })
+});
 
 
 var server = app.listen(8081, function () {

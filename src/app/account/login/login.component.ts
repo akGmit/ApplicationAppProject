@@ -3,6 +3,7 @@ import { AuthService } from '../../auth/auth.service';
 import { Router } from "@angular/router";
 import { NgForm } from "@angular/forms";
 import { User } from '../../models/user';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-login',
@@ -11,42 +12,44 @@ import { User } from '../../models/user';
 })
 export class LoginComponent implements OnInit {
 
-  constructor(public authService: AuthService, public router: Router) { }
+  constructor(private authService: AuthService, private router: Router, private userService : UserService) { }
   //User type object
   private user : User;
-  private wrongDetails :string;
+  private wrongDetailsMessage :string;
   
 
   ngOnInit() {
-    
-
   }
   //Method takin login form data and sending it to auth service 
   onLogIn(form: NgForm){
     //Validate login form
     if(!form.valid){
       console.log("for not good");
-      this.wrongDetails = null;
+      this.wrongDetailsMessage = null;
       return;
     }
 
+    //Save form data to local user type variable
     this.user = {username: form.value.username, password: form.value.password,
-                      firstName: "", lastName: ""};
-    //Send login data to auth service login() method and subscribe
-    //Deal with a response from this method
+                      firstname: "", lastname: "", id: ""};
+    
+                      //Send login data to auth service login() method and subscribe
+    //Deal with a response from this method  
     this.authService.login(this.user).subscribe(res =>
     {
-      //Check response for true or false
-      //If true - login succesful and redirect user to home route
+      //Check response
+      //If not null - login succesful and redirect user to home route
       //Update auth service loggedIn variable to true
-      if(res["result"] == "true"){
+      //Save user data to UserService 
+      if(res !== null){
         this.authService.loggedIn();
+        this.userService.loadUser(res);
         this.router.navigate(['/home']);
-      //If response false - redirect user accordingly
-      }else if(res["result"] == "wrongDetails"){
-        this.wrongDetails = "Wrong username or password!";
-      }
-      
+      //If response is null - authorization failed
+      //Display message
+      }else if(res === null){
+        this.wrongDetailsMessage = "Wrong username or password!";
+      }    
     });
   }
 }

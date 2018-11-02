@@ -24,12 +24,12 @@ export class NewUserComponent implements OnInit {
       return;
     }
 
-    this.newUser = {firstName: form.value.fname, lastName: form.value.lname,
-              username: form.value.username, password: form.value.password};
+    this.newUser = {firstname: form.value.fname, lastname: form.value.lname,
+              username: form.value.username, password: form.value.password, id: ""};
 
     console.log(this.newUser);
     this.createNewUser(this.newUser).subscribe(res =>{
-      
+      console.log(res);
     });
   }
 

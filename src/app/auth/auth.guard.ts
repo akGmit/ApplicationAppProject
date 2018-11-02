@@ -19,7 +19,7 @@ export class AuthGuard implements CanActivate {
   //Method to check if user is logged in, redirect user to login page if not
   checkLogin(): boolean {
     
-    if (this.authService.isLoggedIn) { 
+    if (this.authService.isLoggedIn()) { 
       return true; 
     }
 

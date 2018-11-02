@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgForm } from "@angular/forms";
 import { FormsModule } from "@angular/forms";
+import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Routes} from '@angular/router';
 
 import { AppComponent } from './app.component';
@@ -38,7 +39,7 @@ import { HttpClientModule } from '@angular/common/http';
     
   ],
   imports: [
-    
+    ReactiveFormsModule,
     BrowserModule,
     MatIconModule,
     MatButtonModule,
